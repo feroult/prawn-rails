@@ -1,47 +1,12 @@
 require 'prawn'
 
-if Prawn::VERSION == "0.8.4"
-  require 'prawn/layout'
-  require 'prawn/security'
-end
+require 'prawn_rails/prawn_helper'
+require 'prawn_rails/template_handler'
 
-module Prawn
-  module Rails
-    
-    module PrawnHelper
-      
-      def prawn_document(opts={}, &block)
-        download = opts.delete(:force_download)
-        filename = opts.delete(:filename)
-        pdf = (opts.delete(:renderer) || Prawn::Document).new(opts)
-        pdf.instance_eval(&block) if block_given?
-        
-        disposition(download, filename) if (download || filename)
-        
-        pdf
-      end
-      
-      def disposition(download, filename)
-        download = true if (filename && download == nil)
-        disposition = download ? "attachment;" : "inline;"
-        disposition += " filename=\"#{filename}\"" if filename
-        headers["Content-Disposition"] = disposition
-      end
-      
-    end
-    
-    class TemplateHandler
-      class_attribute :default_format
-      self.default_format = :pdf
-      
-      def self.call(template)
-        "#{template.source.strip}.render"        
-      end
-      
-    end
-    
-  end
-end
+#if Prawn::VERSION == "0.8.4"
+#  require 'prawn/layout'
+#  require 'prawn/security'
+#end
 
 Mime::Type.register_alias "application/pdf", :pdf
 ActionView::Template.register_template_handler(:prawn, Prawn::Rails::TemplateHandler)
