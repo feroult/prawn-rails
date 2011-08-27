@@ -10,11 +10,11 @@ module Prawn
     
     module PrawnHelper
       
-      def prawn_document(opts={})
+      def prawn_document(opts={}, &block)
         download = opts.delete(:force_download)
         filename = opts.delete(:filename)
         pdf = (opts.delete(:renderer) || Prawn::Document).new(opts)
-        yield pdf if block_given?
+        pdf.instance_eval(&block) if block_given?
         
         disposition(download, filename) if (download || filename)
         
