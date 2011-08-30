@@ -7,8 +7,25 @@ module Prawn
         self.pdf = pdf      
       end
       
-      def section(height, &block)
-        bounding_box([0, cursor], :width => bounds.right, :height => height, &block)
+      def section(options, &block)
+        left = ( options.delete(:left) or 0 )
+        top = ( options.delete(:top) or cursor )        
+        options.merge!(:width => bounds.right) unless options[:width]
+        bounding_box([left, top], options, &block)
+      end
+      
+      def line(&block)      
+        move_down 2
+        yield if block_given?
+        text "\n"
+      end
+      
+      def field(s, options)      
+        float do
+          section(options) do
+            text s
+          end
+        end
       end
       
       def method_missing(method, *args, &block) 
